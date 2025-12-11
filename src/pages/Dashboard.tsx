@@ -89,9 +89,25 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center gap-6">
-              <div className="hidden md:flex items-center gap-6">
-                <div className="flex items-center gap-2 text-accent">
-                  <Trophy className="w-5 h-5" />
+              <div className="hidden md:flex items-center gap-4">
+                <Button 
+                  variant="ghost" 
+                  className="gap-2"
+                  onClick={() => navigate('/learn')}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Learn
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="gap-2"
+                  onClick={() => navigate('/leaderboard')}
+                >
+                  <Trophy className="w-4 h-4" />
+                  Leaderboard
+                </Button>
+                <div className="flex items-center gap-2 text-accent bg-accent/10 px-3 py-1.5 rounded-full">
+                  <Star className="w-4 h-4" />
                   <span className="font-semibold">{profile?.total_points || 0}</span>
                 </div>
               </div>
