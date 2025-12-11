@@ -73,7 +73,7 @@ const WaitingRoom = () => {
         .from('game_sessions')
         .select('id')
         .eq('subject_id', subjectId)
-        .eq('difficulty', difficulty)
+        .eq('difficulty', difficulty as 'basic' | 'intermediate' | 'advanced')
         .eq('status', 'waiting')
         .order('created_at', { ascending: true })
         .limit(1)
