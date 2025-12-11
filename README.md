@@ -1,4 +1,4 @@
-# 🧠 BRAINBATTLE
+# 🧠 BRAINRUSH
 ### AI-Powered Learning Games  
 #### Challenge Your Knowledge
 
@@ -47,7 +47,7 @@ and dominate advanced levels.
 
 ---
 
-## 🎯 Why BrainBattle?
+## 🎯 Why BrainRush?
 The ultimate educational gaming platform that makes learning **competitive**, **fun**, and **addictive**.  
 Perfect for students, professionals, and lifelong learners.
 
@@ -59,4 +59,4 @@ Create your account and start your journey today!
 
 ---
 
-© 2024 **BrainBattle** — *Learn. Compete. Conquer.*
+© 2025 **BrainRush** — *Learn. Compete. Conquer.*
