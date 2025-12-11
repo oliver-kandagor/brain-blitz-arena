@@ -1,1 +1,7 @@
 project_id = "gdtueycromexwpcgxhqj"
+
+[functions.generate-challenges]
+verify_jwt = false
+
+[functions.generate-lesson]
+verify_jwt = false

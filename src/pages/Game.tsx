@@ -261,6 +261,21 @@ const Game = () => {
 
     if (finalParticipants) {
       setParticipants(finalParticipants);
+      
+      // Update user's total points in profile
+      if (user && score > 0) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('total_points')
+          .eq('user_id', user.id)
+          .single();
+        
+        const currentPoints = profile?.total_points || 0;
+        await supabase
+          .from('profiles')
+          .update({ total_points: currentPoints + score })
+          .eq('user_id', user.id);
+      }
     }
   };
 
