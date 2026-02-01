@@ -8,7 +8,6 @@ import { ChevronLeft, Trophy, Medal, Star, Crown } from 'lucide-react';
 
 interface LeaderboardEntry {
   id: string;
-  user_id: string;
   username: string | null;
   total_points: number;
   avatar_url: string | null;
@@ -20,6 +19,7 @@ const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [userPoints, setUserPoints] = useState<number | null>(null);
 
   useEffect(() => {
     fetchLeaderboard();
@@ -27,9 +27,10 @@ const Leaderboard = () => {
 
   const fetchLeaderboard = async () => {
     try {
+      // Use the secure leaderboard_view instead of profiles table
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, user_id, username, total_points, avatar_url')
+        .from('leaderboard_view')
+        .select('id, username, total_points, avatar_url')
         .order('total_points', { ascending: false })
         .limit(100);
 
@@ -37,9 +38,20 @@ const Leaderboard = () => {
 
       setLeaderboard(data || []);
       
-      if (user && data) {
-        const rank = data.findIndex(p => p.user_id === user.id);
-        setUserRank(rank >= 0 ? rank + 1 : null);
+      // Get current user's own profile for rank display
+      if (user) {
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('total_points')
+          .eq('user_id', user.id)
+          .single();
+          
+        if (userProfile) {
+          setUserPoints(userProfile.total_points);
+          // Find rank based on points in leaderboard
+          const rank = (data || []).findIndex(p => p.total_points <= (userProfile.total_points || 0));
+          setUserRank(rank >= 0 ? rank + 1 : (data?.length || 0) + 1);
+        }
       }
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
@@ -64,6 +76,12 @@ const Leaderboard = () => {
       case 3: return 'bg-gradient-to-r from-amber-600/20 to-orange-500/20 border-amber-600/50';
       default: return 'bg-muted/30 border-border';
     }
+  };
+
+  // Check if current user is in the leaderboard entry (compare by points since we don't have user_id in view)
+  const isCurrentUser = (entry: LeaderboardEntry, index: number) => {
+    if (!user || userPoints === null) return false;
+    return entry.total_points === userPoints && userRank === index + 1;
   };
 
   return (
@@ -103,7 +121,7 @@ const Leaderboard = () => {
                 ) : '🥈'}
               </div>
               <p className="font-display font-bold">{leaderboard[1].username || 'Player'}</p>
-              <p className="text-accent font-bold">{leaderboard[1].total_points.toLocaleString()}</p>
+              <p className="text-accent font-bold">{leaderboard[1].total_points?.toLocaleString() || 0}</p>
               <div className="w-24 h-20 bg-gradient-to-t from-gray-500 to-gray-400 rounded-t-lg mt-2" />
             </div>
             
@@ -116,7 +134,7 @@ const Leaderboard = () => {
                 ) : '🥇'}
               </div>
               <p className="font-display font-bold text-lg">{leaderboard[0].username || 'Player'}</p>
-              <p className="text-accent font-bold text-xl">{leaderboard[0].total_points.toLocaleString()}</p>
+              <p className="text-accent font-bold text-xl">{leaderboard[0].total_points?.toLocaleString() || 0}</p>
               <div className="w-28 h-28 bg-gradient-to-t from-yellow-600 to-yellow-400 rounded-t-lg mt-2" />
             </div>
             
@@ -128,7 +146,7 @@ const Leaderboard = () => {
                 ) : '🥉'}
               </div>
               <p className="font-display font-bold">{leaderboard[2].username || 'Player'}</p>
-              <p className="text-accent font-bold">{leaderboard[2].total_points.toLocaleString()}</p>
+              <p className="text-accent font-bold">{leaderboard[2].total_points?.toLocaleString() || 0}</p>
               <div className="w-24 h-16 bg-gradient-to-t from-amber-700 to-amber-600 rounded-t-lg mt-2" />
             </div>
           </div>
@@ -146,7 +164,7 @@ const Leaderboard = () => {
             <div className="space-y-3">
               {leaderboard.map((entry, index) => {
                 const rank = index + 1;
-                const isCurrentUser = entry.user_id === user?.id;
+                const isCurrent = isCurrentUser(entry, index);
                 
                 return (
                   <div
@@ -154,7 +172,7 @@ const Leaderboard = () => {
                     className={cn(
                       'flex items-center gap-4 p-4 rounded-xl border transition-all',
                       getRankBg(rank),
-                      isCurrentUser && 'ring-2 ring-primary'
+                      isCurrent && 'ring-2 ring-primary'
                     )}
                   >
                     <div className="w-10 flex justify-center">
@@ -172,13 +190,13 @@ const Leaderboard = () => {
                     <div className="flex-1">
                       <p className="font-display font-bold">
                         {entry.username || 'Anonymous Player'}
-                        {isCurrentUser && <span className="text-primary ml-2">(You)</span>}
+                        {isCurrent && <span className="text-primary ml-2">(You)</span>}
                       </p>
                     </div>
                     
                     <div className="text-right">
                       <p className="font-display font-bold text-accent text-lg">
-                        {entry.total_points.toLocaleString()}
+                        {entry.total_points?.toLocaleString() || 0}
                       </p>
                       <p className="text-xs text-muted-foreground">points</p>
                     </div>
