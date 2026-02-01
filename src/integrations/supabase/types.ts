@@ -307,10 +307,47 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_view: {
+        Row: {
+          avatar_url: string | null
+          id: string | null
+          total_points: number | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          id?: string | null
+          total_points?: number | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string | null
+          total_points?: number | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_challenges_without_answers: {
+        Args: { p_difficulty: string; p_limit?: number; p_subject_id: string }
+        Returns: {
+          difficulty: string
+          id: string
+          options: Json
+          question: string
+          subject_id: string
+        }[]
+      }
+      validate_answer: {
+        Args: { p_answer: string; p_challenge_id: string }
+        Returns: {
+          correct_answer: string
+          explanation: string
+          is_correct: boolean
+        }[]
+      }
     }
     Enums: {
       difficulty_level: "basic" | "intermediate" | "advanced"
